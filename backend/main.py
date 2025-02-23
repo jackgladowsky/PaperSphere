@@ -9,6 +9,6 @@ def home():
 
 @app.get("/papers")
 def get_papers():
-    response = supabase.table("papers").select("*").execute()
-    print(response.data)
+    response = supabase.table("papers_test").select("*").execute()
+    #print(response.data)
     return response.data  # Returns JSON response
