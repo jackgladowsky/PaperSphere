@@ -5,6 +5,7 @@ from datetime import datetime
 from openai import OpenAI
 from dotenv import load_dotenv
 import os
+import re
 
 load_dotenv()
 
@@ -16,7 +17,9 @@ client = OpenAI(
 )
 
 # Define the arXiv API URL (adjust query to your needs)
-ARXIV_API_URL = "http://export.arxiv.org/api/query?search_query=cat:cs.AI&max_results=5&sortBy=submittedDate&sortOrder=descending"
+ARXIV_API_URL = "http://export.arxiv.org/api/query?search_query=cat:cs.*&max_results=10&sortBy=submittedDate&sortOrder=descending"
+
+DATABASE_TABLE = "papers_test"
 
 async def generate_summary(abstract):
     """Generate a short summary of a research paper abstract using GPT-4."""
@@ -33,6 +36,16 @@ async def generate_summary(abstract):
     except Exception as e:
         print("Error generating summary:", e)
         return None  # If LLM fails, store None instead of breaking
+    
+def paper_exists(arxiv_id):
+    """Check if a paper with the given arXiv ID already exists in the database."""
+    response = supabase.table(DATABASE_TABLE).select("*").eq("arxiv_id", arxiv_id).execute()
+    return bool(response.data)
+    
+def extract_arxiv_id(url):
+    """Extract the arXiv ID from a URL."""
+    match = re.search(r'arxiv.org/abs/(\d+\.\d+)', url)
+    return match.group(1) if match else None
 
 async def fetch_papers():
     """Fetch research papers from arXiv, generate summaries, and store them in Supabase."""
@@ -51,13 +64,23 @@ async def fetch_papers():
     # Extract relevant information
     papers = []
     for entry in feed.entries:
+        #print(entry)
         summary = await generate_summary(entry.summary)  # Generate AI summary
+        paper_arxiv_id = extract_arxiv_id(entry.link)
+
+        if paper_exists(paper_arxiv_id):
+            print(f"Paper {paper_arxiv_id} already exists in the database.")
+            continue
+
+        print(f"New paper found: {paper_arxiv_id}, {entry.title}", )
 
         paper_data = {
+            "arxiv_id": paper_arxiv_id,
             "title": entry.title,
             "authors": ", ".join(author.name for author in entry.authors),
             "abstract": entry.summary,
             "summary": summary,  # Store AI-generated summary
+            "category": entry.arxiv_primary_category["term"],  # Extract category
             "url": entry.link,
             "published_at": datetime.strptime(entry.published, "%Y-%m-%dT%H:%M:%SZ").isoformat()
         }
@@ -68,7 +91,7 @@ async def fetch_papers():
         return
 
     # Insert into Supabase
-    response = supabase.table("papers_test").insert(papers).execute()
+    response = supabase.table(DATABASE_TABLE).insert(papers).execute()
 
     if response.data:
         print(f"Inserted {len(response.data)} papers into Supabase with summaries!")
