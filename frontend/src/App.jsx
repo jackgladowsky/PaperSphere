@@ -1,14 +1,30 @@
 import React from "react";
-import "./styles.css"; // Ensure correct path
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Navbar from "./components/Navbar";
 import PaperList from "./components/PaperList";
+import SearchPage from "./pages/SearchPage";
+import PaperDetails from "./pages/PaperDetails";
+import ProfilePage from "./pages/ProfilePage";
 
-
-function App() {
+const App = () => {
   return (
-    <div className="min-h-screen bg-gray-100 p-6">
-      <PaperList />
-    </div>
+    <Router>
+      {/* Full-height background */}
+      <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
+        <Navbar />
+        
+        {/* Center the main content */}
+        <main className="max-w-4xl mx-auto px-4 py-6">
+          <Routes>
+            <Route path="/" element={<PaperList />} />
+            <Route path="/search" element={<SearchPage />} />
+            <Route path="/paper/:id" element={<PaperDetails />} />
+            <Route path="/profile" element={<ProfilePage />} />
+          </Routes>
+        </main>
+      </div>
+    </Router>
   );
-}
+};
 
 export default App;

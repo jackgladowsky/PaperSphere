@@ -37,14 +37,14 @@ const PaperList = () => {
   };
 
   return (
-    <div className="max-w-3xl mx-auto p-4 h-screen overflow-auto">
+    <div className="p-4">
       <h1 className="text-2xl font-bold mb-4 text-center">Latest Papers</h1>
       <div className="flex flex-col space-y-4">
         {papers.map((paper) => (
           <PaperCard key={paper.id} paper={paper} />
         ))}
       </div>
-
+  
       {/* Infinite Scroll Trigger */}
       <div ref={hasMore ? ref : null} className="h-10 flex justify-center items-center">
         {loading && <p className="text-gray-500">Loading more...</p>}
@@ -52,6 +52,7 @@ const PaperList = () => {
       </div>
     </div>
   );
+  
 };
 
 export default PaperList;
