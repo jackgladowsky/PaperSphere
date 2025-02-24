@@ -10,28 +10,35 @@ import re
 load_dotenv()
 
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
+LM_STUDIO_URL=os.getenv("LM_STUDIO_URL")
 
 client = OpenAI(
-  base_url="https://openrouter.ai/api/v1",
+  #base_url="https://openrouter.ai/api/v1",
+  base_url=LM_STUDIO_URL,
   api_key=OPENROUTER_API_KEY,
 )
 
+MAX_RESULTS = 100
+
 # Define the arXiv API URL (adjust query to your needs)
-ARXIV_API_URL = "http://export.arxiv.org/api/query?search_query=cat:cs.*&max_results=10&sortBy=submittedDate&sortOrder=descending"
+ARXIV_API_URL = f"http://export.arxiv.org/api/query?search_query=cat:cs.*&max_results={MAX_RESULTS}&sortBy=submittedDate&sortOrder=descending"
 
 DATABASE_TABLE = "papers_test"
 
 async def generate_summary(abstract):
     """Generate a short summary of a research paper abstract using GPT-4."""
+    #print(abstract)
     try:
         response = client.chat.completions.create(
-        model="mistralai/mistral-small-24b-instruct-2501:free",
-        messages=[
-                {"role": "system", "content": "Summarize this research paper abstract in 2-3 sentences."},
-                {"role": "user", "content": abstract}
-            ]
-        )
+            #model="mistralai/mistral-small-24b-instruct-2501:free",
+            model="hermes-3-llama-3.2-3b",
+            messages=[
+                    {"role": "system", "content": "Summarize this research paper in 2-3 sentences. Be clear and concise. Try and use language anyone can understand."},
+                    {"role": "user", "content": abstract}
+                ]
+            )
         summary = response.choices[0].message.content.strip()
+        #summary = response.choices[0].message.strip()
         return summary
     except Exception as e:
         print("Error generating summary:", e)
@@ -65,14 +72,14 @@ async def fetch_papers():
     papers = []
     for entry in feed.entries:
         #print(entry)
-        summary = await generate_summary(entry.summary)  # Generate AI summary
         paper_arxiv_id = extract_arxiv_id(entry.link)
-
         if paper_exists(paper_arxiv_id):
             print(f"Paper {paper_arxiv_id} already exists in the database.")
             continue
 
-        print(f"New paper found: {paper_arxiv_id}, {entry.title}", )
+        summary = await generate_summary(entry.summary)  # Generate AI summary
+        
+        print(f"New paper found: {paper_arxiv_id}", )
 
         paper_data = {
             "arxiv_id": paper_arxiv_id,
