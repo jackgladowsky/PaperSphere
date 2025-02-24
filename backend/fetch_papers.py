@@ -18,10 +18,11 @@ client = OpenAI(
   api_key=OPENROUTER_API_KEY,
 )
 
-MAX_RESULTS = 100
+MAX_RESULTS = 10
 
 # Define the arXiv API URL (adjust query to your needs)
-ARXIV_API_URL = f"http://export.arxiv.org/api/query?search_query=cat:cs.*&max_results={MAX_RESULTS}&sortBy=submittedDate&sortOrder=descending"
+#ARXIV_API_URL = f"http://export.arxiv.org/api/query?search_query=cat:cs.*&max_results={MAX_RESULTS}&sortBy=submittedDate&sortOrder=descending"
+ARXIV_API_URL = f"http://export.arxiv.org/api/query?search_query=all&max_results={MAX_RESULTS}&sortBy=submittedDate&sortOrder=descending&start=0"
 
 DATABASE_TABLE = "papers_test"
 
