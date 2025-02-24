@@ -28,7 +28,7 @@ def get_papers(page: int = Query(1, alias="page"), limit: int = Query(10, alias=
     response = (
         supabase.table("papers_test")
         .select("*")
-        .order("published_at", desc=True)
+        .order("arxiv_id", desc=True)
         .range(offset, offset + limit - 1)  # Apply pagination
         .execute()
     )
