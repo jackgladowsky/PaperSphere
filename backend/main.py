@@ -38,3 +38,25 @@ def get_papers(page: int = Query(1, alias="page"), limit: int = Query(10, alias=
 
     return {"papers": papers, "page": page, "limit": limit}
 
+@app.get("/papers/{paper_id}")
+def get_paper_details(paper_id: str):
+    """
+    Fetch details for a specific paper by ID.
+    """
+    response = (
+        supabase.table("papers_test")
+        .select("*")
+        .eq("id", paper_id)
+        .limit(1)
+        .execute()
+    )
+    
+    # Extract paper data from response
+    papers = response.data if response and response.data else []
+    
+    if not papers:
+        # Return 404 if paper not found
+        return {"error": "Paper not found"}, 404
+    
+    return papers[0]
+

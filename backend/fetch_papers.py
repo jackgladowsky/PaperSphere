@@ -12,17 +12,20 @@ load_dotenv()
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
 LM_STUDIO_URL=os.getenv("LM_STUDIO_URL")
 
-client = OpenAI(
-  #base_url="https://openrouter.ai/api/v1",
-  base_url=LM_STUDIO_URL,
-  api_key=OPENROUTER_API_KEY,
-)
+try:
+    client = OpenAI(
+    #base_url="https://openrouter.ai/api/v1",
+    base_url=LM_STUDIO_URL,
+    api_key=OPENROUTER_API_KEY,
+    )
+except Exception as e:
+    print("Error creating LLM client:", e)
 
-MAX_RESULTS = 10
+MAX_RESULTS = 250
 
 # Define the arXiv API URL (adjust query to your needs)
-#ARXIV_API_URL = f"http://export.arxiv.org/api/query?search_query=cat:cs.*&max_results={MAX_RESULTS}&sortBy=submittedDate&sortOrder=descending"
-ARXIV_API_URL = f"http://export.arxiv.org/api/query?search_query=all&max_results={MAX_RESULTS}&sortBy=submittedDate&sortOrder=descending&start=0"
+ARXIV_API_URL = f"http://export.arxiv.org/api/query?search_query=cat:cs.*&max_results={MAX_RESULTS}&sortBy=submittedDate&sortOrder=descending"
+#ARXIV_API_URL = f"http://export.arxiv.org/api/query?search_query=all&max_results={MAX_RESULTS}&sortBy=submittedDate&sortOrder=descending&start=0"
 
 DATABASE_TABLE = "papers_test"
 
@@ -60,7 +63,11 @@ async def fetch_papers():
     
     # Fetch data from arXiv API
     async with httpx.AsyncClient() as client:
-        response = await client.get(ARXIV_API_URL)
+        try:
+            response = await client.get(ARXIV_API_URL)
+        except Exception as e:
+            print("Error fetching data from arXiv:", e)
+            return
     
     if response.status_code != 200:
         print("Error fetching data from arXiv:", response.text)
