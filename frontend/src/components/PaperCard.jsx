@@ -1,8 +1,18 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { ThumbsUp, ThumbsDown, MessageSquare, Share, ExternalLink } from "lucide-react";
+import { ThumbsUp, ThumbsDown, MessageSquare, Share, ExternalLink, Bookmark } from "lucide-react";
+
+
 
 const PaperCard = ({ paper }) => {
+
+  const getPdfUrl = (arxiv_id) => {
+    return `https://arxiv.org/pdf/${arxiv_id}.pdf`;
+  }; 
+
+  const arxivId = paper.arxiv_id || id;
+  const pdfUrl = getPdfUrl(arxivId);
+
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden transition-all duration-200 hover:shadow-md hover:border-gray-200 hover:translate-y-px">
       <div className="p-6">
@@ -37,10 +47,14 @@ const PaperCard = ({ paper }) => {
             <button className="flex items-center text-gray-500 hover:text-purple-600 transition-colors">
               <Share size={18} className="mr-1" />
             </button>
+
+            <button className="flex items-center text-gray-500 hover:text-purple-600 transition-colors">
+              <Bookmark size={18} className="mr-1" />
+            </button>
           </div>
          
           <a
-            href={paper.url}
+            href={pdfUrl}
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center text-blue-600 hover:text-blue-800 font-medium transition-colors"

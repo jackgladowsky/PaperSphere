@@ -27,7 +27,7 @@ MAX_RESULTS = 250
 ARXIV_API_URL = f"http://export.arxiv.org/api/query?search_query=cat:cs.*&max_results={MAX_RESULTS}&sortBy=submittedDate&sortOrder=descending"
 #ARXIV_API_URL = f"http://export.arxiv.org/api/query?search_query=all&max_results={MAX_RESULTS}&sortBy=submittedDate&sortOrder=descending&start=0"
 
-DATABASE_TABLE = "papers_test"
+DATABASE_TABLE = "papers"
 
 async def generate_summary(abstract):
     """Generate a short summary of a research paper abstract using GPT-4."""
